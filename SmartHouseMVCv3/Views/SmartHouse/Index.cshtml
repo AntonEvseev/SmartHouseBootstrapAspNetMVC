@@ -1,0 +1,98 @@
+﻿@using System.Web.Mvc.Html
+@using SmartHouseMVCv3.AbstractClass
+@using SmartHouseMVCv3.Interfaces
+@using SmartHouseMVCv3.Enum
+@using SmartHouseMVCv3.Models
+
+@model IDictionary<int, Device>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+</head>
+<style>
+    .device{float: left;
+            width: 250px;
+            border: 1px double orange; 
+            border-radius: 10px;
+            margin-left: 30px;
+            margin-top: 30px;
+    }
+    .but{
+        float: left;
+    }
+    .lampModer{
+        width: 100px;
+        
+        float: left;
+        
+    }
+    .buttonLamp{
+        width: 100px;
+        float: left;
+        
+    }
+    
+</style>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-5 col-xs-offset-5 col col-sm-1 col-sm-offset-5 col-md-1 col-md-offset-5 ">
+                <h2>SmartHouse</h2>
+            </div>
+        </div>
+        
+                @using (Html.BeginForm("Add", "SmartHouse"))
+                {
+                    <div class="row">
+                        <div class="col-xs-6 col col-sm-6 col-md-6">
+                            <div>
+                                @Html.DropDownList("deviceType", (IEnumerable<SelectListItem>)ViewBag.DevicesList, new { @class = "form-control lampModer" })
+                                <input class="btn btn-primary buttonLamp" type="submit" value="Добавить">
+                            </div>
+                        </div>
+                    </div>
+                    foreach (var item in Model)
+                    {
+                        <div class="device row">
+                            <div class="col-xs-12 col col-sm-12 col-md-12">
+                                @* Добавление изображений в зависимости от девайса*@
+                                <div class="row">
+                                    <div class="col-xs-4 col-xs-offset-4 col-sm-4 col-3-offset-4 col-md-3 col-md-offset-4">
+                                        @if (item.Value is ILampMode && item.Value.Status == false)
+                                        { <img src="~/Content/Images/LampOff.gif" alt="Лампа выключена" /> }
+                                        @if (item.Value is ILampMode && item.Value.Status == true)
+                                        { <img src="~/Content/Images/LampOn.gif" alt="Лампа включена" /> }
+                                    </div>
+                                </div>
+                                    @if (item.Value is IStatus && item.Value.Status == false)
+                                {
+                                        <a id="@item.Key" class="btn btn-primary" href="/SmartHouse/OnMode/@item.Key">Включить</a>
+                                        <br />
+                                }
+                                    @if (item.Value is IStatus && item.Value.Status == true)
+                                {
+                                        <a id="@item.Key" class="btn btn-primary" href="/SmartHouse/OffMode/@item.Key">Выключить</a>
+    <br />
+                                }
+                                    @if (item.Value is ILampMode)
+                                {
+                                        <span>Выберите режим:</span><br />
+                                        @Html.DropDownList("lampMode", new SelectList(new[] { BrightnessLevel.High.ToString(), BrightnessLevel.Medium.ToString(), BrightnessLevel.Low.ToString() }), (string)Session["LampMode"], new { id = "lampMode" + item.Key, @class = "form-control lampModer" })    
+                                        <input class="btn btn-success buttonLamp" type="submit" id="@item.Key" formaction="SetLampMode/@item.Key" /><br />
+
+                                }
+                                <br />
+                                    <p class="status">Устройство: @item.Value.Name <br /> @item.Value.ToString()</p>
+                                    <br />@Html.ActionLink("Удалить", "Delete", new { id = item.Key }, new { @class = "btn btn-danger" })
+                                </div>
+                        </div>
+                    }
+                }
+                </div>
+        
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/Scripts/bootstrap.js"></script>
+</body>
+</html>
